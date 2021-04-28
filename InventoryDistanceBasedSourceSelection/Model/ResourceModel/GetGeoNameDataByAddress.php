@@ -55,7 +55,7 @@ class GetGeoNameDataByAddress
 
         $qry = $connection->select()->from($tableName)
             ->where('country_code = ?', $address->getCountry())
-            ->where('postcode = ?', $address->getPostcode())
+            ->where('postcode = ?', $this->getFormattedPostcode($address->getPostcode()))
             ->limit(1);
 
         $row = $connection->fetchRow($qry);
@@ -84,5 +84,22 @@ class GetGeoNameDataByAddress
         }
 
         return $row;
+    }
+
+     /**
+     * Format postcode for searching inventory_geoname
+     *
+     * @param string $postcode
+     * @return string
+     */
+    private function getFormattedPostcode(string $postcode): string
+    {
+        $pattern = '/^([a-zA-Z]{1,2}[0-9]{1,2})\s?[0-9]{1}[a-zA-Z]{2}$/';
+        preg_match( $pattern, $postcode, $match);
+        if (count($match) > 1) {
+            return trim($match[1]);
+        } else {
+            return $postcode;
+        }
     }
 }
